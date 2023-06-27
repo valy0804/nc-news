@@ -11,8 +11,6 @@ const { getArticleById } = require("./controllers/articles.controllers.js");
 
 const app = express();
 
-app.use(express.json());
-
 app.get("/api/topics", getAllTopics);
 
 app.get("/api", getApi);
