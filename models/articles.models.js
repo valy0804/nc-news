@@ -12,7 +12,6 @@ exports.selectArticleById = (article_id) => {
 };
 
 exports.selectAllArticles = () => {
-
   const articlesQuery = `
     SELECT
       a.article_id,
@@ -30,7 +29,6 @@ exports.selectAllArticles = () => {
   `;
 
   return db.query(articlesQuery).then(({ rows }) => {
-    console.log(rows)
     return rows;
   });
 };
