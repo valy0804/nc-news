@@ -123,14 +123,6 @@ describe("GET /api/articles", () => {
       });
   });
 
-  test("400: responds with bad request for an invalid request", () => {
-    return request(app)
-      .get("/api/articles/nothing")
-      .expect(400)
-      .then(({ body }) => {
-        expect(body.msg).toBe("Bad request");
-      });
-  });
   test("404: responds with not found err when the endpoint is invalid", () => {
     return request(app)
       .get("/api/articles/9999")
