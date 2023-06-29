@@ -202,7 +202,6 @@ describe("POST /api/articles/:article_id/comments", () => {
       })
       .expect(201)
       .then(({ body }) => {
-        console.log(body);
         expect(body.comment).toHaveProperty("comment_id");
         expect(body.comment.author).toBe("butter_bridge");
         expect(body.comment.body).toBe("This is a great article!");
