@@ -153,7 +153,7 @@ describe("GET /api/articles/:article_id/comments", () => {
         comments.forEach((comment) => {
           expect(comment.article_id).toBe(1);
           expect(comment).toMatchObject({
-            article_id: expect.any(Number),
+            article_id: 1,
             comment_id: expect.any(Number),
             votes: expect.any(Number),
             created_at: expect.any(String),
@@ -165,16 +165,25 @@ describe("GET /api/articles/:article_id/comments", () => {
   });
 });
 
-test("400: responds with an error when article_id is not an integer", () => {
+test("200: responds with an empty array when article has no comments", () => {
   return request(app)
-    .get("/api/articles/first_article/comments")
-    .expect(400)
+    .get("/api/articles/2/comments")
+    .expect(200)
     .then(({ body }) => {
-      expect(body.msg).toBe("Bad request");
+      expect(body.comments).toEqual([]);
     });
 });
 
-test("404: responds with an error when given an article_id that doesn't exist", () => {
+test("400: should respond with a bad request error if article_id is invalid", () => {
+  return request(app)
+    .get("/api/articles/banana/comments")
+    .expect(400)
+    .then(({ body }) => {
+      console.log(body)
+      expect(body.msg).toBe("Bad request");
+    });
+});
+test("404: responds with an error if article_id doesn't exist", () => {
   return request(app)
     .get("/api/articles/9999/comments")
     .expect(404)
