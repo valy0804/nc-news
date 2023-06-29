@@ -202,9 +202,28 @@ describe("POST /api/articles/:article_id/comments", () => {
       })
       .expect(201)
       .then(({ body }) => {
+        console.log(body);
+        expect(body.comment).toHaveProperty("comment_id");
         expect(body.comment.author).toBe("butter_bridge");
         expect(body.comment.body).toBe("This is a great article!");
       });
+  });
+  describe("POST /api/articles/:article_id/comments", () => {
+    test("201: should respond with posted comment", () => {
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send({
+          username: "butter_bridge",
+          body: "This is a great article!",
+        })
+        .expect(201)
+        .then(({ body }) => {
+          expect(body.comment).toMatchObject({
+            author: "butter_bridge",
+            body: "This is a great article!",
+          });
+        });
+    });
   });
   test("400: responds with an error when article id is in an invalid format", () => {
     return request(app)
@@ -239,6 +258,18 @@ describe("POST /api/articles/:article_id/comments", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("Article not found");
+      });
+  });
+  test("404: responds with an error when username doesn’t exist", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send({
+        username: "not_a_user",
+        body: "This is a great article!",
+      })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid username");
       });
   });
 });
