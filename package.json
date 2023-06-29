@@ -2,13 +2,15 @@
   "name": "be-nc-news",
   "version": "1.0.0",
   "description": "bc-nc-news",
-  "main": "index.js",
+  "main": "listener.js",
   "scripts": {
     "setup-dbs": "psql -f ./db/setup.sql",
     "seed": "node ./db/seeds/run-seed.js",
     "test": "jest",
-    "dev": "PGDATABASE=nc_news node db/data/development-data/index.js",
-    "prepare": "husky install"
+    "dev": "node listener.js",
+    "prepare": "husky install",
+    "seed-prod": "NODE_ENV=production npm run seed",
+    "start": "node listener.js"
   },
   "repository": {
     "type": "git",
