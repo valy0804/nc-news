@@ -179,7 +179,7 @@ test("400: should respond with a bad request error if article_id is invalid", ()
     .get("/api/articles/banana/comments")
     .expect(400)
     .then(({ body }) => {
-      console.log(body)
+      console.log(body);
       expect(body.msg).toBe("Bad request");
     });
 });
@@ -190,4 +190,55 @@ test("404: responds with an error if article_id doesn't exist", () => {
     .then(({ body }) => {
       expect(body.msg).toBe("Article not found");
     });
+});
+
+describe("POST /api/articles/:article_id/comments", () => {
+  test("201: should responds with posted comment", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send({
+        username: "butter_bridge",
+        body: "This is a great article!",
+      })
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.comment.author).toBe("butter_bridge");
+        expect(body.comment.body).toBe("This is a great article!");
+      });
+  });
+  test("400: responds with an error when article id is in an invalid format", () => {
+    return request(app)
+      .post("/api/articles/banana/comments")
+      .send({
+        username: "butter_bridge",
+        body: "This is a great article!",
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("400: should inform the user that there are missing data in the request", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send({
+        username: "butter_bridge",
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toEqual("Missing data");
+      });
+  });
+  test("404: responds with an error when given an article_id that doesn’t exist", () => {
+    return request(app)
+      .post("/api/articles/9999/comments")
+      .send({
+        username: "butter_bridge",
+        body: "This is a great article!",
+      })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Article not found");
+      });
+  });
 });
