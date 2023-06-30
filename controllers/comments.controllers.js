@@ -1,6 +1,7 @@
 const {
   selectAllCommentsByArticleId,
   insertComment,
+  removeCommentById,
 } = require("../models/comments.models");
 
 const { checkIfUsernameExists } = require("../models/users.models");
@@ -32,6 +33,16 @@ exports.addComment = (req, res, next) => {
     .then(() => insertComment(article_id, username, body))
     .then((comment) => {
       res.status(201).send({ comment });
+    })
+    .catch(next);
+};
+
+exports.deleteCommentById = (req, res, next) => {
+  const { comment_id } = req.params;
+
+  removeCommentById(comment_id)
+    .then(() => {
+      res.send(204);
     })
     .catch(next);
 };
