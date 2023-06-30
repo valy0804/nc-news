@@ -301,15 +301,32 @@ describe("PATCH /api/articles/:article_id", () => {
       });
   });
 
-  test("status: 400 responds with an error if votes are missing", () => {
+  test("status: 200 returns the original article object if votes are missing", () => {
     return request(app)
       .patch("/api/articles/1")
-      .send({})
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad request");
+      .send({ inc_votes: 1 })
+      .expect(200)
+      .then(({ body: { article } }) => {
+        expect(article).toMatchObject({
+          author: expect.any(String),
+          title: expect.any(String),
+          article_id: 1,
+          body: expect.any(String),
+          topic: expect.any(String),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+        });
       });
   });
+});
+test("400: responds with an error for an invalid article_id", () => {
+  return request(app)
+    .patch("/api/articles/not-an-id")
+    .send({ inc_votes: 1 })
+    .expect(400)
+    .then(({ body: { msg } }) => {
+      expect(msg).toBe("Bad request");
+    });
 });
 
 test("status: 404 responds with an error when given an article_id that doesn't exist", () => {
