@@ -272,3 +272,52 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
   });
 });
+
+describe("PATCH /api/articles/:article_id", () => {
+  test("200: responds with a single article object", () => {
+    return request(app)
+      .patch("/api/articles/2")
+      .send({ inc_votes: 1 })
+      .expect(200)
+      .then(({ body: { article } }) => {
+        expect(article).toMatchObject({
+          author: expect.any(String),
+          title: expect.any(String),
+          article_id: 2,
+          body: expect.any(String),
+          topic: expect.any(String),
+          created_at: expect.any(String),
+          votes: 1,
+        });
+      });
+  });
+  test(" 200: updates article object when increment the current article's vote property by 1", () => {
+    return request(app)
+      .patch("/api/articles/3")
+      .send({ inc_votes: 1 })
+      .expect(200)
+      .then(({ body: { article } }) => {
+        expect(article.votes).toBe(1);
+      });
+  });
+
+  test("status: 400 responds with an error if votes are missing", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({})
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad request");
+      });
+  });
+});
+
+test("status: 404 responds with an error when given an article_id that doesn't exist", () => {
+  return request(app)
+    .patch("/api/articles/9999")
+    .send({ inc_votes: 1 })
+    .expect(404)
+    .then(({ body: { msg } }) => {
+      expect(msg).toBe("Article not found");
+    });
+});
