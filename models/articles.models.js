@@ -10,9 +10,20 @@ exports.selectArticleById = (article_id) => {
       return result.rows[0];
     });
 };
+exports.selectAllArticles = (topic, sort_by = "created_at", order = "desc") => {
+  const validSortBy = ["title", "article_id", "votes", "created_at", "topic"];
 
-exports.selectAllArticles = () => {
-  const articlesQuery = `
+  const validOrder = ["asc", "desc"];
+  const values = [];
+
+  if (!validSortBy.includes(sort_by)) {
+    return Promise.reject({ status: 400, msg: "Bad request" });
+  }
+  if (!validOrder.includes(order)) {
+    return Promise.reject({ status: 400, msg: "Bad request" });
+  }
+
+  let articlesQuery = `
     SELECT
       a.article_id,
       a.title,
@@ -23,12 +34,17 @@ exports.selectAllArticles = () => {
       a.article_img_url,
       COUNT(c.comment_id) AS comment_count
     FROM articles AS a
-    LEFT JOIN comments AS c ON a.article_id = c.article_id
-    GROUP BY a.article_id
-    ORDER BY a.created_at DESC;
-  `;
+    LEFT JOIN comments AS c
+    ON a.article_id = c.article_id`;
 
-  return db.query(articlesQuery).then(({ rows }) => {
+  if (topic) {
+    articlesQuery += ` WHERE a.topic = $1`;
+    values.push(topic);
+  }
+
+  articlesQuery += ` GROUP BY a.article_id ORDER BY ${sort_by} ${order}`;
+
+  return db.query(articlesQuery, values).then(({ rows }) => {
     return rows;
   });
 };
