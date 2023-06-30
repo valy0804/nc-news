@@ -179,7 +179,6 @@ test("400: should respond with a bad request error if article_id is invalid", ()
     .get("/api/articles/banana/comments")
     .expect(400)
     .then(({ body }) => {
-      console.log(body);
       expect(body.msg).toBe("Bad request");
     });
 });
@@ -337,4 +336,15 @@ test("status: 404 responds with an error when given an article_id that doesn't e
     .then(({ body: { msg } }) => {
       expect(msg).toBe("Article not found");
     });
+});
+
+describe("DELETE /api/comments/:comment_id", () => {
+  test("204: deletes the comment and responds with no content", () => {
+    return request(app)
+      .delete("/api/comments/9")
+      .expect(204)
+      .then((res) => {
+        expect(res.body).toEqual({});
+      });
+  });
 });
