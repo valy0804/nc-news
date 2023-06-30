@@ -1,6 +1,7 @@
 const {
   selectArticleById,
   selectAllArticles,
+  updateArticleVotesById,
 } = require("../models/articles.models");
 
 exports.getArticleById = (req, res, next) => {
@@ -16,6 +17,21 @@ exports.getAllArticles = (req, res, next) => {
   selectAllArticles()
     .then((articles) => {
       res.status(200).send({ articles });
+    })
+    .catch(next);
+};
+
+exports.editArticle = (req, res, next) => {
+  const { article_id } = req.params;
+  const { inc_votes } = req.body;
+
+  if (typeof inc_votes !== "number") {
+    return next({ status: 400, msg: "Bad request" });
+  }
+
+  updateArticleVotesById(article_id, inc_votes)
+    .then((article) => {
+      res.status(200).send({ article });
     })
     .catch(next);
 };
