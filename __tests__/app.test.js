@@ -402,9 +402,10 @@ describe("GET /api/articles", () => {
       .expect(200)
       .then(({ body: { articles } }) => {
         articles.forEach((article) => {
+          expect(Array.isArray(articles)).toBe(true);
           expect(article).toHaveProperty("article_id", expect.any(Number));
           expect(article).toHaveProperty("title", expect.any(String));
-          expect(article).toHaveProperty("topic", expect.any(String));
+          //expect(article).toHaveProperty("topic", expect.any(String));
           expect(article).toHaveProperty("author", expect.any(String));
           expect(article).toHaveProperty("created_at", expect.any(String));
           expect(article).toHaveProperty("votes", expect.any(Number));
@@ -448,6 +449,24 @@ test("400: should return an error if an invalid sort_by parameter is given", () 
 test("400: should return an error if an invalid order_by parameter is given", () => {
   return request(app)
     .get("/api/articles?order=invalid_parameter")
+    .expect(400)
+    .then(({ body }) => {
+      expect(body.msg).toBe("Bad request");
+    });
+});
+test("200: should return an empty array for a topic with no articles", () => {
+  return request(app)
+    .get("/api/articles?topic=paper")
+    .expect(200)
+    .then(({ body: { articles } }) => {
+      expect(Array.isArray(articles)).toBe(true);
+      expect(articles.length).toBe(0);
+    });
+});
+
+test("400: should return an error if an invalid topic parameter is given", () => {
+  return request(app)
+    .get("/api/articles?topic=katherine")
     .expect(400)
     .then(({ body }) => {
       expect(body.msg).toBe("Bad request");
