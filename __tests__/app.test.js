@@ -5,7 +5,7 @@ const testData = require("../db/data/test-data/index");
 const db = require("../db/connection");
 const data = require("../endpoints.json");
 const comments = require("../db/data/test-data/comments");
-
+const toBeSortedBy = require("jest-sorted");
 beforeEach(() => {
   return seed(testData);
 });
@@ -75,22 +75,23 @@ describe("GET /api/articles/:article_id", () => {
         });
       });
   });
-  test("400: responds with an error when article_id is an invalid type", () => {
-    return request(app)
-      .get("/api/articles/banana")
-      .expect(400)
-      .then(({ body }) => {
-        expect(body.msg).toBe("Bad request");
-      });
-  });
-  test("404: responds with an error when article_id is valid, but not exists", () => {
-    return request(app)
-      .get("/api/articles/9999")
-      .expect(404)
-      .then(({ body }) => {
-        expect(body.msg).toBe("Article not found");
-      });
-  });
+});
+
+test("400: responds with an error when article_id is an invalid type", () => {
+  return request(app)
+    .get("/api/articles/banana")
+    .expect(400)
+    .then(({ body }) => {
+      expect(body.msg).toBe("Bad request");
+    });
+});
+test("404: responds with an error when article_id is valid, but not exists", () => {
+  return request(app)
+    .get("/api/articles/9999")
+    .expect(404)
+    .then(({ body }) => {
+      expect(body.msg).toBe("Article not found");
+    });
 });
 
 describe("GET /api/articles", () => {
@@ -392,4 +393,82 @@ describe("GET /api/users", () => {
         });
       });
   });
+});
+
+describe("GET /api/articles", () => {
+  test("200: should return an array of articles with order by asc", () => {
+    return request(app)
+      .get("/api/articles?order=asc")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        articles.forEach((article) => {
+          expect(Array.isArray(articles)).toBe(true);
+          expect(article).toHaveProperty("article_id", expect.any(Number));
+          expect(article).toHaveProperty("title", expect.any(String));
+          //expect(article).toHaveProperty("topic", expect.any(String));
+          expect(article).toHaveProperty("author", expect.any(String));
+          expect(article).toHaveProperty("created_at", expect.any(String));
+          expect(article).toHaveProperty("votes", expect.any(Number));
+          expect(article).toHaveProperty("article_img_url", expect.any(String));
+          expect(article).toHaveProperty("comment_count", expect.any(String));
+        });
+      });
+  });
+});
+
+test("200: should respond with an array of the articles filtered by a specific topic", () => {
+  return request(app)
+    .get("/api/articles?topic=mitch")
+    .expect(200)
+    .then(({ body: { articles } }) => {
+      expect(Array.isArray(articles)).toBe(true);
+      expect(articles[0].topic).toEqual("mitch");
+    });
+});
+
+test("200: default sorted order is by created_at desc", () => {
+  return request(app)
+    .get("/api/articles?sort_by=created_at&order=desc")
+    .expect(200)
+    .then(({ body: { articles } }) => {
+      console.log(articles);
+      expect(articles).toBeSortedBy("created_at", {
+        descending: true,
+      });
+    });
+});
+
+test("400: should return an error if an invalid sort_by parameter is given", () => {
+  return request(app)
+    .get("/api/articles?sort_by=invalid_parameter")
+    .expect(400)
+    .then(({ body }) => {
+      expect(body.msg).toBe("Bad request");
+    });
+});
+test("400: should return an error if an invalid order_by parameter is given", () => {
+  return request(app)
+    .get("/api/articles?order=invalid_parameter")
+    .expect(400)
+    .then(({ body }) => {
+      expect(body.msg).toBe("Bad request");
+    });
+});
+test("200: should return an empty array for a topic with no articles", () => {
+  return request(app)
+    .get("/api/articles?topic=paper")
+    .expect(200)
+    .then(({ body: { articles } }) => {
+      expect(Array.isArray(articles)).toBe(true);
+      expect(articles.length).toBe(0);
+    });
+});
+
+test("400: should return an error if an invalid topic parameter is given", () => {
+  return request(app)
+    .get("/api/articles?topic=katherine")
+    .expect(400)
+    .then(({ body }) => {
+      expect(body.msg).toBe("Bad request");
+    });
 });
