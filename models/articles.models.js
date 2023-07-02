@@ -12,9 +12,13 @@ exports.selectArticleById = (article_id) => {
 };
 exports.selectAllArticles = (topic, sort_by = "created_at", order = "desc") => {
   const validSortBy = ["title", "article_id", "votes", "created_at", "topic"];
-
+  const validTopics = ["mitch", "cats", "paper"];
   const validOrder = ["asc", "desc"];
   const values = [];
+
+  if (!validTopics.includes(topic) && topic) {
+    return Promise.reject({ status: 400, msg: "Bad request" });
+  }
 
   if (!validSortBy.includes(sort_by)) {
     return Promise.reject({ status: 400, msg: "Bad request" });
