@@ -36,10 +36,12 @@ exports.selectAllArticles = (topic, sort_by = "created_at", order = "desc") => {
       a.created_at,
       a.votes,
       a.article_img_url,
-      COUNT(c.comment_id) AS comment_count
-    FROM articles AS a
-    LEFT JOIN comments AS c
-    ON a.article_id = c.article_id`;
+      (
+        SELECT COUNT(*)
+        FROM comments AS c
+        WHERE c.article_id = a.article_id
+      ) AS comment_count
+    FROM articles AS a`;
 
   if (topic) {
     articlesQuery += ` WHERE a.topic = $1`;

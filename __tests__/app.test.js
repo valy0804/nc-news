@@ -472,3 +472,17 @@ test("400: should return an error if an invalid topic parameter is given", () =>
       expect(body.msg).toBe("Bad request");
     });
 });
+describe("GET /api/articles", () => {
+  test("200: should return an array of articles with comment_count included", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(Array.isArray(articles)).toBe(true);
+        articles.forEach((article) => {
+          expect(article).toHaveProperty("comment_count");
+          expect(articles[0].comment_count).toBe("2");
+        });
+      });
+  });
+});
